@@ -621,6 +621,7 @@ export class AmpVideo extends AMP.BaseElement {
     tracks.forEach((track) => {
       this.video_.appendChild(track);
     });
+    this.setUpCaptions_();
 
     if (this.video_.changedSources) {
       this.video_.changedSources();
@@ -761,6 +762,24 @@ export class AmpVideo extends AMP.BaseElement {
     listenOncePromise(this.video_, 'loadedmetadata').then(() =>
       this.onVideoLoaded_()
     );
+    this.setUpCaptions_();
+  }
+
+  /** Connects to amp-video-captions component. */
+  setUpCaptions_() {
+    const captionsId = this.element.getAttribute('captions-id');
+    if (!captionsId) {
+      return;
+    }
+    const captionsElement = document.getElementById(captionsId);
+    if (!captionsElement) {
+      return;
+    }
+    captionsElement.getImpl().then((impl) => {
+      if (impl.setVideoElement) {
+        impl.setVideoElement(this.video_);
+      }
+    });
   }
 
   /** @private */
